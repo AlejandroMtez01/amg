@@ -17,5 +17,11 @@ commands:
     description: Renombra un elemento con encantamientos especiales
     usage:
   vender:
-    description: Vender elementos del invetario.
+    description: Vender elementos del inventario.
+    usage: ""
+  sagrados:
+    description: Muestra los elementos sagrados generados.
+    usage: ""
+  guardaritemsagrado:
+    description: Muestra los elementos sagrados generados.
     usage: ""

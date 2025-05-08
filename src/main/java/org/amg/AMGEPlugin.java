@@ -1,25 +1,30 @@
 package org.amg;
 
 import net.milkbowl.vault.economy.Economy;
-import org.amg.Comandos.EliminarEncantamiento;
-import org.amg.Comandos.MejorarEncantamiento;
-import org.amg.Comandos.Renombrar;
-import org.amg.Comandos.Vender;
+import org.amg.Comandos.*;
+import org.amg.FileData.FileDataManager;
 import org.amg.MenuListener.MenuListenerEliminarEncantamiento;
+import org.amg.MenuListener.MenuListenerItemSagrados;
 import org.amg.MenuListener.MenuListenerMejorarEncantamiento;
+import org.amg.Otros.ItemManager;
 import org.amg.Utils.UtilsMensajes;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class AMGEPlugin extends JavaPlugin {
     public static Economy economia;
-
+    private ItemManager itemManager;
+    private FileDataManager fileDataManager;
     @Override
     public void onEnable() {
         if (!setupEconomy()) {
             getLogger().severe("No se encontró un plugin de economía compatible con Vault.");
             getServer().getPluginManager().disablePlugin(this);
         }
+        // Inicializar managers
+        this.fileDataManager = new FileDataManager(this);
+        this.itemManager = new ItemManager(this, fileDataManager);
+
         getLogger().info(UtilsMensajes.NOMBRE_FORMAL+": Plugin  habilitado correctamente");
         //---------
 
@@ -29,11 +34,15 @@ public class AMGEPlugin extends JavaPlugin {
         getCommand("mejorarEncantamiento").setExecutor(new MejorarEncantamiento(this));
         getCommand("renombrar").setExecutor(new Renombrar(this));
         getCommand("vender").setExecutor(new Vender(this));
+        getCommand("guardaritemsagrado").setExecutor(new GuardarSagrados(this,itemManager));
+        getCommand("sagrados").setExecutor(new Sagrados(this,itemManager));
+
 
         //Gestión de eventos.
 
         getServer().getPluginManager().registerEvents(new MenuListenerEliminarEncantamiento(), this);
         getServer().getPluginManager().registerEvents(new MenuListenerMejorarEncantamiento(), this);
+        getServer().getPluginManager().registerEvents(new MenuListenerItemSagrados(this,itemManager), this);
 
     }
 
