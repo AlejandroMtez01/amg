@@ -1,0 +1,11 @@
+Ahora si no tiene en cuenta los enchant custom, pero imprime el menú vacío en el caso de que solo hay enchant custom.
+-- PENDIENTE DE MEJORAR.
+Comprar mejoras de encantamientos por encima de vanilla.
+
+pdt
+ if (MiPlugin.economia.has(jugador, coste)) {
+            MiPlugin.economia.withdrawPlayer(jugador, coste);
+            jugador.sendMessage("§aSe te han cobrado §e" + coste + "§a monedas.")
+
+26/04/2025 16:12 Pendiente
+- Falta eliminar encantamiento sobre el que se apoya

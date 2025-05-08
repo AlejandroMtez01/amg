@@ -1,0 +1,21 @@
+name: AMGE
+version: 1.0
+main: org.amg.AMGEPlugin  # ¡Asegúrate de que coincida con tu clase principal!
+api-version: "1.20"
+depend:
+  - Vault
+description: Administrador de encantamientos con menú interactivo
+author: Alejandro Martínez García
+commands:
+  eliminarEncantamiento:
+    description: Abre el menú de encantamientos del item en mano
+    usage: ""
+  mejorarEncantamiento:
+    description: Abre el menú de encantamientos del item en mano
+    usage: ""
+  renombrar:
+    description: Renombra un elemento con encantamientos especiales
+    usage:
+  vender:
+    description: Vender elementos del invetario.
+    usage: ""

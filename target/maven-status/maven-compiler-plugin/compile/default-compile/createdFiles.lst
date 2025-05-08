@@ -1,0 +1,15 @@
+org\amg\Comandos\Renombrar.class
+org\amg\AMGEPlugin.class
+org\amg\Menu\MenuMejorarEncantamientos.class
+org\amg\MenuListener\MenuListenerEliminarEncantamiento.class
+org\amg\Comandos\EliminarEncantamiento.class
+org\amg\Comandos\MejorarEncantamiento.class
+org\amg\Utils\UtilsPrecios.class
+org\amg\Utils\UtilsMensajes.class
+org\amg\Menu\MenuEliminarEncantamientos.class
+org\amg\Utils\UtilsLimites.class
+org\amg\Utils\UtilsVender.class
+org\amg\Utils\UtilsMetodos.class
+org\amg\Utils\UtilsMetodosEconomicos.class
+org\amg\Comandos\Vender.class
+org\amg\MenuListener\MenuListenerMejorarEncantamiento.class
