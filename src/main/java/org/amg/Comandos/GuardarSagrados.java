@@ -28,11 +28,11 @@ public class GuardarSagrados implements CommandExecutor {
         Player player = (Player) sender;
         ItemStack item = player.getInventory().getItemInMainHand();
         
-        if (itemManager.guardarItem(player, item)) {
+        /*if (itemManager.guardarItem(player, item)) {
             player.sendMessage(UtilsMensajes.NOMBRE_INFORMAL +"§a¡Item guardado correctamente!");
         } else {
             player.sendMessage(UtilsMensajes.NOMBRE_INFORMAL +"§c¡Error al guardar el item! Asegúrate de estar sosteniendo un item válido.");
-        }
+        }*/
         
         return true;
     }

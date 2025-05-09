@@ -3,6 +3,7 @@ package org.amg.Otros;
 import org.amg.AMGEPlugin;
 import org.amg.FileData.FileDataManager;
 import org.amg.Menu.MenuItemSagrados;
+import org.amg.Utils.UtilsMensajes;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -20,7 +21,18 @@ public class ItemManager {
         this.plugin = plugin;
         this.fileDataManager = fileDataManager;
     }
-    
+    public boolean renovarItem(Player player, ItemStack itemViejo, ItemStack itemNuevo){
+        boolean seHaGuardado = false;
+        if (eliminarItemPorClick(player.getUniqueId(),itemViejo,player)){
+            player.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"Eliminando antiguo §6§lITEM SAGRADO");
+        }
+        seHaGuardado = guardarItem(player,itemNuevo);
+        if (seHaGuardado){
+            player.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"Creando nuevo §6§lITEM SAGRADO");
+
+        }
+        return (seHaGuardado);
+    }
     public boolean guardarItem(Player player, ItemStack item) {
         if (item == null || item.getType().isAir()) {
             return false;
@@ -37,14 +49,14 @@ public class ItemManager {
         return fileDataManager.guardarItem(player.getUniqueId(), player.getName(), item);
     }
     
-    public boolean renovarItem(Player player, ItemStack itemViejo, ItemStack itemNuevo) {
+    /*public boolean renovarItem(Player player, ItemStack itemViejo, ItemStack itemNuevo) {
         if (itemViejo == null || itemNuevo == null || 
             itemViejo.getType().isAir() || itemNuevo.getType().isAir()) {
             return false;
         }
         
         return fileDataManager.actualizarItem(player.getUniqueId(), itemViejo, itemNuevo);
-    }
+    }*/
     
     public List<ItemStack> obtenerItems(UUID jugadorUUID) {
         return fileDataManager.obtenerItems(jugadorUUID);

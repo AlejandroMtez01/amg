@@ -2,6 +2,7 @@ package org.amg.MenuListener;
 
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.amg.AMGEPlugin;
+import org.amg.Otros.ItemManager;
 import org.amg.Utils.UtilsMensajes;
 import org.amg.Utils.UtilsMetodos;
 import org.amg.Utils.UtilsMetodosEconomicos;
@@ -16,10 +17,17 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class MenuListenerMejorarEncantamiento implements Listener {
+    private final AMGEPlugin plugin;
+    private final ItemManager itemManager;
+    public MenuListenerMejorarEncantamiento(AMGEPlugin plugin, ItemManager itemManager) {
+        this.plugin = plugin;
+        this.itemManager = itemManager;
+    }
     @EventHandler
     public void onInventoryClick(InventoryClickEvent evento) {
         if (!(evento.getWhoClicked() instanceof Player)) return;
@@ -67,11 +75,13 @@ public class MenuListenerMejorarEncantamiento implements Listener {
                         jugador.sendMessage("No tienes dinero suficiente ("+UtilsPrecios.calcularPrecioMejoraEncantamiento(nivelSiguiente)+")");
 
                     }else{
+                        ItemStack itemParaEliminar = itemMano.clone();
                         itemMano.addUnsafeEnchantment(enc, nivelSiguiente);
                         UtilsMetodos.repararItem(itemMano,jugador);
                         UtilsMetodosEconomicos.retirarDinero(jugador,precioOperacion);
                         UtilsMetodos.eliminarEncantamiento(puedeMejorarEncantamiento,enc,jugador);
-                        jugador.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+" §eMejora de encantamiento implementada!");
+                        jugador.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"§eMejora de encantamiento implementada!");
+                        itemManager.renovarItem(jugador,itemParaEliminar,itemMano);
                         //jugador.getInventory().remove(puedeMejorarEncantamiento); //Opcionalmente se puede eliminar el ITEM.
 
 

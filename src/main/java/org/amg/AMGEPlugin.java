@@ -41,7 +41,7 @@ public class AMGEPlugin extends JavaPlugin {
         //Gestión de eventos.
 
         getServer().getPluginManager().registerEvents(new MenuListenerEliminarEncantamiento(), this);
-        getServer().getPluginManager().registerEvents(new MenuListenerMejorarEncantamiento(), this);
+        getServer().getPluginManager().registerEvents(new MenuListenerMejorarEncantamiento(this,itemManager), this);
         getServer().getPluginManager().registerEvents(new MenuListenerItemSagrados(this,itemManager), this);
 
     }
