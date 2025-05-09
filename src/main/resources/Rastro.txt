@@ -9,3 +9,6 @@ pdt
 
 26/04/2025 16:12 Pendiente
 - Falta eliminar encantamiento sobre el que se apoya
+
+- Corregir click izquierdo /sagrados
+- Solucionar LORE (se sobreescribe)

@@ -2,7 +2,6 @@ package org.amg.MenuListener;
 
 import org.amg.AMGEPlugin;
 import org.amg.Otros.ItemManager;
-import org.amg.Utils.UtilsMensajes;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -14,43 +13,42 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class MenuListenerItemSagrados implements Listener {
+public class MenuListenerItemSagrados_old implements Listener {
     private final AMGEPlugin plugin;
     private final ItemManager itemManager;
     private final Map<UUID, ItemStack> itemsSeleccionados;
 
-    public MenuListenerItemSagrados(AMGEPlugin plugin, ItemManager itemManager) {
+    public MenuListenerItemSagrados_old(AMGEPlugin plugin, ItemManager itemManager) {
         this.plugin = plugin;
         this.itemManager = itemManager;
         this.itemsSeleccionados = new HashMap<>();
     }
-
+    
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player)) return;
-
+        
         Player player = (Player) event.getWhoClicked();
         Inventory inv = event.getInventory();
         String title = event.getView().getTitle();
-
+        
         if (!title.startsWith(ChatColor.translateAlternateColorCodes('&', "&6Items Especiales &7- Página "))) {
             return;
         }
-
+        
         event.setCancelled(true);
-
+        
         ItemStack clicked = event.getCurrentItem();
         if (clicked == null || clicked.getType() == Material.AIR) return;
-
+        
         // Manejar clic en botones de paginación
         if (clicked.getType() == Material.ARROW) {
             String displayName = clicked.getItemMeta().getDisplayName();
             int currentPage = Integer.parseInt(title.split("Página ")[1].split("/")[0]);
-
+            
             if (displayName.contains("anterior")) {
                 itemManager.abrirMenuItems(player, currentPage - 1);
             } else if (displayName.contains("siguiente")) {
@@ -63,29 +61,29 @@ public class MenuListenerItemSagrados implements Listener {
         }
         // Manejar clic en un item especial
         else {
-
-            //Control de Clicks
-            if (event.isLeftClick()){
-                List<String> lore = clicked.getItemMeta().getLore();
-                String nombrePropietario = lore.get(1).split(":")[1];
-
-                player.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"Cuentan los DIOSES que este elemento fue creado por "+nombrePropietario+"§f.");
-
-
-            }else if (event.isRightClick()){
-                if (itemManager.eliminarItemPorClick(player.getUniqueId(),clicked,player)) {
-                    player.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"Eliminando item de los §6§lITEMS SAGRADOS§f.");
-
-                }else{
-                    player.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"No puedes eliminar un §6§lITEM SAGRADO§f si no eres el propietario.");
+            // Verificar si el jugador está en modo renovación
+            if (player.hasMetadata("modo_renovacion")) {
+                ItemStack itemEnMano = player.getInventory().getItemInMainHand();
+                if (itemEnMano != null && !itemEnMano.getType().isAir()) {
+                    Map<String, String> info = itemManager.obtenerInfoJugadorPorItem(clicked);
+                    if (info != null && info.get("uuid_jugador").equals(player.getUniqueId().toString())) {
+                        if (itemManager.renovarItem(player, clicked, itemEnMano)) {
+                            player.sendMessage(ChatColor.GREEN + "¡Item renovado correctamente!");
+                        } else {
+                            player.sendMessage(ChatColor.RED + "¡Error al renovar el item!");
+                        }
+                    } else {
+                        player.sendMessage(ChatColor.RED + "¡Solo puedes renovar tus propios items!");
+                    }
+                } else {
+                    player.sendMessage(ChatColor.RED + "¡Debes sostener un item en la mano para renovar!");
                 }
-
+                player.removeMetadata("modo_renovacion", plugin);
                 player.closeInventory();
-
             }
         }
     }
-
+    
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
         if (event.getPlayer() instanceof Player) {

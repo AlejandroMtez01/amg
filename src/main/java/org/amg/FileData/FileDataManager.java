@@ -2,8 +2,11 @@ package org.amg.FileData;
 
 import com.sun.tools.javac.Main;
 import org.amg.AMGEPlugin;
+import org.amg.Utils.UtilsItemMeta;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
@@ -121,7 +124,68 @@ public class FileDataManager {
         }
         return allItems;
     }
-    
+    public boolean eliminarItemIgnorandoLore(UUID jugadorUUID, ItemStack itemClick, Player jugador) {
+        try {
+            if (!dataConfig.contains(jugadorUUID.toString())) {
+                return false;
+            }
+
+
+            List<Map<String, Object>> playerItems = (List<Map<String, Object>>) dataConfig.getList(jugadorUUID.toString());
+            boolean encontrado = false;
+
+            // Crear copia del item sin lore para comparación
+            ItemStack itemComparar = itemClick.clone();
+            if (itemComparar.hasItemMeta()) {
+                ItemMeta meta = itemComparar.getItemMeta();
+                meta.setLore(null); // Eliminar el lore
+                itemComparar.setItemMeta(meta);
+                UtilsItemMeta.mostrarItemSinUso(itemComparar);
+            }
+
+            String targetSerialized = serializeItemStack(itemComparar);
+
+            Iterator<Map<String, Object>> iterator = playerItems.iterator();
+            while (iterator.hasNext()) {
+                Map<String, Object> itemData = iterator.next();
+                try {
+                    // Deserializar y crear copia sin lore para comparar
+                    ItemStack storedItem = deserializeItemStack((String) itemData.get("item_serializado"));
+                    ItemStack storedItemComparar = storedItem.clone();
+                    UtilsItemMeta.mostrarItemSinUso(storedItemComparar);
+
+                    if (storedItemComparar.hasItemMeta()) {
+                        ItemMeta meta = storedItemComparar.getItemMeta();
+                        meta.setLore(null);
+                        storedItemComparar.setItemMeta(meta);
+                    }
+
+                    if (serializeItemStack(storedItemComparar).equals(targetSerialized)) {
+                        jugador.sendMessage("MISMO ITEM, se PUEDE ELIMINAR");
+                        iterator.remove();
+                        encontrado = true;
+                        break;
+                    }
+                } catch (Exception e) {
+                    plugin.getLogger().log(Level.WARNING, "Error al deserializar item", e);
+                }
+            }
+
+            if (encontrado) {
+                if (playerItems.isEmpty()) {
+                    dataConfig.set(jugadorUUID.toString(), null);
+                } else {
+                    dataConfig.set(jugadorUUID.toString(), playerItems);
+                }
+                saveData();
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            plugin.getLogger().log(Level.SEVERE, "Error al eliminar item ignorando lore", e);
+            return false;
+        }
+    }
     public Map<String, String> obtenerInfoJugadorPorItem(ItemStack item) {
         try {
             String targetSerialized = serializeItemStack(item);
@@ -134,6 +198,23 @@ public class FileDataManager {
                         info.put("nombre_jugador", (String) itemData.get("nombre_jugador"));
                         info.put("uuid_jugador", key);
                         return info;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            plugin.getLogger().log(Level.WARNING, "Error al buscar info de jugador", e);
+        }
+        return null;
+    }
+    public Long obtenerFechaEnMSItem(ItemStack item) {
+        try {
+            String targetSerialized = serializeItemStack(item);
+
+            for (String key : dataConfig.getKeys(false)) {
+                List<Map<String, Object>> playerItems = (List<Map<String, Object>>) dataConfig.getList(key);
+                for (Map<String, Object> itemData : playerItems) {
+                    if (targetSerialized.equals(itemData.get("item_serializado"))) {
+                        return (long) itemData.get("fecha_guardado");
                     }
                 }
             }

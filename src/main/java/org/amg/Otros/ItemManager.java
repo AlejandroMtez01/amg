@@ -61,4 +61,10 @@ public class ItemManager {
     public void abrirMenuItems(Player player, int pagina) {
         new MenuItemSagrados(plugin, this).abrir(player, pagina);
     }
+    public boolean eliminarItemPorClick(UUID jugadorUUID, ItemStack item, Player jugador) {
+        return fileDataManager.eliminarItemIgnorandoLore(jugadorUUID, item,jugador);
+    }
+    public Long obtenerFechaEnMSItem(ItemStack item){
+        return fileDataManager.obtenerFechaEnMSItem(item);
+    }
 }
