@@ -48,7 +48,10 @@ public class FileDataManager {
     
     public boolean guardarItem(UUID jugadorUUID, String jugadorNombre, ItemStack item) {
         try {
-            String serializedItem = serializeItemStack(item);
+            //Se clona el Item (Para no modificar) el item del Jugador.
+            ItemStack itemCopia = item.clone();
+            UtilsItemMeta.mostrarItemSinUso(itemCopia); //Se repara porque los items mostrados en Menú Sagrado no deben tener desgaste.
+            String serializedItem = serializeItemStack(itemCopia);
             
             List<Map<String, Object>> playerItems = new ArrayList<>();
             if (dataConfig.contains(jugadorUUID.toString())) {
@@ -134,18 +137,15 @@ public class FileDataManager {
             List<Map<String, Object>> playerItems = (List<Map<String, Object>>) dataConfig.getList(jugadorUUID.toString());
             boolean encontrado = false;
 
-            // Crear copia del item sin lore para comparación
+            // Crear copia del item sin lore para comparación [Item clicado en el menú].
             ItemStack itemComparar = itemClick.clone();
-            if (itemComparar.hasItemMeta()) {
-                ItemMeta meta = itemComparar.getItemMeta();
-                meta.setLore(null); // Eliminar el lore
-                itemComparar.setItemMeta(meta);
-                UtilsItemMeta.mostrarItemSinUso(itemComparar);
-            }
+            UtilsItemMeta.eliminarLore(itemComparar);
 
+            //Se serializa el Item.
             String targetSerialized = serializeItemStack(itemComparar);
 
             Iterator<Map<String, Object>> iterator = playerItems.iterator();
+            //Se recorre completamente el archivo
             while (iterator.hasNext()) {
                 Map<String, Object> itemData = iterator.next();
                 try {
@@ -159,9 +159,9 @@ public class FileDataManager {
                         meta.setLore(null);
                         storedItemComparar.setItemMeta(meta);
                     }
+                    // Se busca en todos los registros un serializado igual.
 
                     if (serializeItemStack(storedItemComparar).equals(targetSerialized)) {
-                        jugador.sendMessage("MISMO ITEM, se PUEDE ELIMINAR");
                         iterator.remove();
                         encontrado = true;
                         break;

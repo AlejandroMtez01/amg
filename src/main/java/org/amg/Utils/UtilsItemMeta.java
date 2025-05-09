@@ -26,6 +26,14 @@ public class UtilsItemMeta {
         return item;
 
     }
+    public static void eliminarLore(ItemStack item){
+
+        if (item.hasItemMeta()) {
+            ItemMeta meta = item.getItemMeta();
+            meta.setLore(null); // Eliminar el lore
+            item.setItemMeta(meta);
+        }
+    }
     public static ItemStack addLoreEspaciado(ItemStack item, String texto){
         ItemMeta itemMeta = item.getItemMeta();
         List<String> lista = new ArrayList<>();
