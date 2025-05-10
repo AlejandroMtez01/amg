@@ -12,3 +12,5 @@ pdt
 
 - Corregir click izquierdo /sagrados
 - Solucionar LORE (se sobreescribe)
+
+

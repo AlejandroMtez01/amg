@@ -22,6 +22,6 @@ commands:
   sagrados:
     description: Muestra los elementos sagrados generados.
     usage: ""
-  guardaritemsagrado:
-    description: Muestra los elementos sagrados generados.
-    usage: ""
+  #guardaritemsagrado:
+  #  description: Muestra los elementos sagrados generados.
+  #  usage: ""

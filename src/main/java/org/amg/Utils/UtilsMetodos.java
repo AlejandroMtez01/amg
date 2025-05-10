@@ -82,38 +82,33 @@ public class UtilsMetodos {
         }
         return false;
     }
-    public static ItemStack encantamientoMejorado(ItemStack[] huecosInventario, ItemStack itemMano, Enchantment encantamiento, int level, Player jugador) {
-        for (ItemStack elemento : huecosInventario) {
-            //if (elemento != null && !elemento.isSimilar(itemMano) && elemento.hasItemMeta() && !elemento.getType().equals(Material.ENCHANTED_BOOK && elemento.getType().equals(itemMano.getType()))) {
-            if (elemento != null && !elemento.isSimilar(itemMano) && elemento.hasItemMeta() &&
-                    elemento.getType().equals(itemMano.getType())) { //Necesariamente tiene que tratarse del mismo tipo.
-                //jugador.sendMessage("→Se comparar el elemento: " + itemMano.getType().name() + " con: \n\n");
+    public static int encantamientoMejorado(ItemStack[] huecosInventario, ItemStack itemMano, Enchantment encantamiento, int level, Player jugador) {
+        jugador.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"Recorriendo todos los items del inventario (v 1.4)");
+        for (int i = 0; i < jugador.getInventory().getContents().length; i++) {
+            ItemStack elemento = jugador.getInventory().getContents()[i];
 
 
-                Map<Enchantment, Integer> encantamientos = elemento.getEnchantments();
+            if (itemMano == null || !itemMano.containsEnchantment(encantamiento) ||
+                    itemMano.getEnchantmentLevel(encantamiento) != level - 1) {
+                return -1;
+            }
+            if (elemento == null || elemento.getType().isAir() || i == jugador.getInventory().getHeldItemSlot()) {
+            } else {
+                // Primero verificar que el item en mano tenga el encantamiento y nivel especificado
+//                jugador.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"Comprobando item "+elemento.getItemMeta().getDisplayName());
+//                jugador.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"Contiene el encantamiento adecuado "+encantamiento+ " / "+itemMano.containsEnchantment(encantamiento));
+//                jugador.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"Contiene el nivel adecuado "+(level-1)+ " / "+itemMano.getEnchantmentLevel(encantamiento));
 
-                //jugador.sendMessage("\n\nBúscando elemento: " + itemMano.getType().name());
+                // Recorro completamente el inventario buscando 2 items que tengan el mismo nivel de encantamiento
+                if (elemento.containsEnchantment(encantamiento) && elemento.getEnchantmentLevel(encantamiento) == (level - 1)) {
 
-                for (Map.Entry<Enchantment, Integer> entry : encantamientos.entrySet()) {
-
-                    Enchantment enc = entry.getKey();
-                    int nivel = entry.getValue();
-                    //jugador.sendMessage("Encantamiento: " + enc + " lvl " + nivel);
-
-                    if (enc.equals(encantamiento)) {
-                        //jugador.sendMessage("§e→ Encontrado &b&lEncantamiento Similar §f: " + enc.getKey().getKey() + " nivel " + nivel);
-                        //jugador.sendMessage("§eNivel (Elemento en la mano): "+(level-1));
-                        //jugador.sendMessage("§eNivel (Elemento clickado): "+nivel);
-                        if (nivel == (level-1)) {
-                            return elemento;
-                        }
-                    }
+                    //jugador.sendMessage(UtilsMensajes.NOMBRE_INFORMAL + "Encontrado " + elemento.getItemMeta().getDisplayName());
+                    return i;
                 }
             }
-
         }
         //jugador.sendMessage("No existen encantamientos similares");
-        return null;
+        return -1;
 
     }
     public static void eliminarEncantamientoInventario(Player jugador, ItemStack item, Enchantment enchantment){
@@ -131,5 +126,11 @@ public class UtilsMetodos {
         jugador.getInventory().remove(copiaElemento);
         copiaElemento.removeEnchantment(encantamiento);
         jugador.getInventory().addItem(copiaElemento);
+    }
+    public static void eliminarEncantamiento(int id,Enchantment encantamiento,Player jugador){
+        jugador.getInventory().getContents()[id].removeEnchantment(encantamiento);
+//        jugador.getInventory().remove(copiaElemento);
+//        copiaElemento.removeEnchantment(encantamiento);
+//        jugador.getInventory().addItem(copiaElemento);
     }
 }
