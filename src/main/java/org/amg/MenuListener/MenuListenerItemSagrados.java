@@ -69,7 +69,15 @@ public class MenuListenerItemSagrados implements Listener {
                 List<String> lore = clicked.getItemMeta().getLore();
                 String nombrePropietario = lore.get(1).split(":")[1];
 
-                player.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"Cuentan los DIOSES que este elemento fue creado por "+nombrePropietario+"§f.");
+                if (player.hasPermission("amg.sagrados.give")){
+                    player.getInventory().addItem(clicked);
+                    player.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"Obteniendo el §6ITEM SAGRADO§f.");
+
+                }else{
+                    player.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"Cuentan los DIOSES que este elemento fue creado por "+nombrePropietario+"§f.");
+
+                }
+
 
 
             }else if (event.isRightClick()){

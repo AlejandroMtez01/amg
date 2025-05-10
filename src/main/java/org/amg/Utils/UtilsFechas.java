@@ -6,7 +6,7 @@ import java.util.TimeZone;
 
 public class UtilsFechas {
     public static String formatoFecha(long timestamp) {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         sdf.setTimeZone(TimeZone.getTimeZone("Europe/Madrid"));
         return sdf.format(new Date(timestamp));
     }

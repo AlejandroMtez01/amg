@@ -32,7 +32,7 @@ public class AMGEPlugin extends JavaPlugin {
 
         getCommand("eliminarEncantamiento").setExecutor(new EliminarEncantamiento(this));
         getCommand("mejorarEncantamiento").setExecutor(new MejorarEncantamiento(this));
-        getCommand("renombrar").setExecutor(new Renombrar(this));
+        getCommand("renombrar").setExecutor(new Renombrar(this,itemManager));
         getCommand("vender").setExecutor(new Vender(this));
         getCommand("guardaritemsagrado").setExecutor(new GuardarSagrados(this,itemManager));
         getCommand("sagrados").setExecutor(new Sagrados(this,itemManager));

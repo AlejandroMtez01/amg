@@ -39,12 +39,12 @@ public class ItemManager {
         }
         
         // Asegurarse de que el item tenga un nombre especial
-        ItemMeta meta = item.getItemMeta();
+        /*ItemMeta meta = item.getItemMeta();
         if (meta != null && !meta.hasDisplayName()) {
             //meta.setDisplayName("§6Item Especial de " + player.getName());
             //item.setItemMeta(meta);
             return false; //Únicamente se podrán añadir aquellos items que contengan nombres personalizados
-        }
+        }*/
         
         return fileDataManager.guardarItem(player.getUniqueId(), player.getName(), item);
     }

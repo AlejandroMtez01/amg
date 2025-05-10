@@ -1,6 +1,7 @@
 package org.amg.Comandos;
 
 import org.amg.AMGEPlugin;
+import org.amg.Otros.ItemManager;
 import org.amg.Utils.UtilsMensajes;
 import org.amg.Utils.UtilsMetodos;
 import org.bukkit.ChatColor;
@@ -12,12 +13,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 public class Renombrar implements CommandExecutor {
+    private final ItemManager itemManager;
     private final AMGEPlugin plugin;
 
-    public Renombrar(AMGEPlugin plugin) {
+    public Renombrar(AMGEPlugin plugin, ItemManager itemManager) {
         this.plugin = plugin;
+        this.itemManager = itemManager;
     }
-
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 
@@ -28,6 +30,7 @@ public class Renombrar implements CommandExecutor {
         }
         Player jugador = (Player) sender;
         ItemStack itemMano = jugador.getInventory().getItemInMainHand();
+        ItemStack itemViejo = itemMano.clone();
 
         if (itemMano == null || itemMano.getType().isAir()) {
             jugador.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"¡Debes tener un item en la mano para poder renombrar el item!");
@@ -50,6 +53,8 @@ public class Renombrar implements CommandExecutor {
         itemMano.setItemMeta(meta);
 
         jugador.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"¡Objeto renombrado correctamente!" +" ["+nuevoNombre+"§f]");
+
+        itemManager.renovarItem(jugador,itemViejo,itemMano);
 
         return true;
 
