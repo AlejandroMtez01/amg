@@ -155,11 +155,7 @@ public class FileDataManager {
                     ItemStack storedItemComparar = storedItem.clone();
                     UtilsItemMeta.mostrarItemSinUso(storedItemComparar);
 
-                    if (storedItemComparar.hasItemMeta()) {
-                        ItemMeta meta = storedItemComparar.getItemMeta();
-                        meta.setLore(null);
-                        storedItemComparar.setItemMeta(meta);
-                    }
+                    UtilsItemMeta.eliminarLore(storedItemComparar);
                     // Se busca en todos los registros un serializado igual.
 
                     if (serializeItemStack(storedItemComparar).equals(targetSerialized)) {

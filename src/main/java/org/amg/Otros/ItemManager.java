@@ -3,6 +3,7 @@ package org.amg.Otros;
 import org.amg.AMGEPlugin;
 import org.amg.FileData.FileDataManager;
 import org.amg.Menu.MenuItemSagrados;
+import org.amg.Utils.UtilsItemMeta;
 import org.amg.Utils.UtilsMensajes;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -74,7 +75,9 @@ public class ItemManager {
         new MenuItemSagrados(plugin, this).abrir(player, pagina);
     }
     public boolean eliminarItemPorClick(UUID jugadorUUID, ItemStack item, Player jugador) {
-        return fileDataManager.eliminarItemIgnorandoLore(jugadorUUID, item,jugador);
+        ItemStack itemCopia = item.clone();
+        UtilsItemMeta.mostrarItemSinUso(itemCopia);
+        return fileDataManager.eliminarItemIgnorandoLore(jugadorUUID, itemCopia,jugador);
     }
     public Long obtenerFechaEnMSItem(ItemStack item){
         return fileDataManager.obtenerFechaEnMSItem(item);
