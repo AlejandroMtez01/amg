@@ -1,11 +1,12 @@
 package org.amg.Utils;
 
-import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
 import java.util.Map;
 import java.util.Set;
@@ -64,7 +65,7 @@ public class UtilsEncantamientos {
         return false;
     }
     public static int encantamientoMejorado(ItemStack[] huecosInventario, ItemStack itemMano, Enchantment encantamiento, int level, Player jugador) {
-        jugador.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"Recorriendo todos los items del inventario (v 1.4)");
+        jugador.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"Recorriendo todos los items del inventario (v 1.5)");
         for (int i = 0; i < jugador.getInventory().getContents().length; i++) {
             ItemStack elemento = jugador.getInventory().getContents()[i];
 
@@ -75,16 +76,14 @@ public class UtilsEncantamientos {
             }
             if (elemento == null || elemento.getType().isAir() || i == jugador.getInventory().getHeldItemSlot()) {
             } else {
-                // Primero verificar que el item en mano tenga el encantamiento y nivel especificado
-//                jugador.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"Comprobando item "+elemento.getItemMeta().getDisplayName());
-//                jugador.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"Contiene el encantamiento adecuado "+encantamiento+ " / "+itemMano.containsEnchantment(encantamiento));
-//                jugador.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"Contiene el nivel adecuado "+(level-1)+ " / "+itemMano.getEnchantmentLevel(encantamiento));
 
-                // Recorro completamente el inventario buscando 2 items que tengan el mismo nivel de encantamiento
                 if (elemento.containsEnchantment(encantamiento) && elemento.getEnchantmentLevel(encantamiento) == (level - 1)) {
-
-                    //jugador.sendMessage(UtilsMensajes.NOMBRE_INFORMAL + "Encontrado " + elemento.getItemMeta().getDisplayName());
                     return i;
+                }
+                if (elemento.getType() == Material.ENCHANTED_BOOK && tieneEncantamientoLibro(elemento, encantamiento)) {
+                    if (getNivelEncantamientoLibro(elemento, encantamiento) == (level - 1)) {
+                        return i;
+                    }
                 }
             }
         }
@@ -92,8 +91,39 @@ public class UtilsEncantamientos {
         return -1;
 
     }
+    // Métodos auxiliares nuevos para manejar libros encantados
+    private static boolean tieneEncantamientoLibro(ItemStack item, Enchantment encantamiento) {
+        if (item.getType() != Material.ENCHANTED_BOOK) return false;
+
+        EnchantmentStorageMeta meta = (EnchantmentStorageMeta) item.getItemMeta();
+        return meta != null && meta.hasStoredEnchant(encantamiento);
+    }
+
+    private static int getNivelEncantamientoLibro(ItemStack item, Enchantment encantamiento) {
+        if (item.getType() != Material.ENCHANTED_BOOK) return 0;
+
+        EnchantmentStorageMeta meta = (EnchantmentStorageMeta) item.getItemMeta();
+        return meta != null ? meta.getStoredEnchantLevel(encantamiento) : 0;
+    }
+
     public static void eliminarEncantamiento(int id,Enchantment encantamiento,Player jugador){
-        jugador.getInventory().getContents()[id].removeEnchantment(encantamiento);
+        ItemStack item = jugador.getInventory().getContents()[id];
+        //Si se trata de un libro
+        if (item.getType() == Material.ENCHANTED_BOOK) {
+            EnchantmentStorageMeta meta = (EnchantmentStorageMeta) item.getItemMeta();
+            meta.removeStoredEnchant(encantamiento);
+
+
+            // Cambiar a libro normal si no tiene encantamientos
+            if (meta.getStoredEnchants().isEmpty()) {
+                item.setType(Material.BOOK);
+                item.setItemMeta(null); // Eliminar la meta completamente
+            } else {
+                item.setItemMeta(meta);
+            }
+        }else{
+            jugador.getInventory().getContents()[id].removeEnchantment(encantamiento);
+        }
     }
     public static int convertirRomano2Nivel(String nivel) {
         switch (nivel) {

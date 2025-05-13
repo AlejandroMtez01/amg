@@ -1,15 +1,8 @@
 package org.amg.Utils;
 
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
-import org.bukkit.inventory.meta.EnchantmentStorageMeta;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class UtilsMetodos {
 
