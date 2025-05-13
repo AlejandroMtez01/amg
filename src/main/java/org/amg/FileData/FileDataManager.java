@@ -140,7 +140,6 @@ public class FileDataManager {
             // Crear copia del item sin lore para comparación [Item clicado en el menú].
             ItemStack itemComparar = itemClick.clone();
             UtilsItemMeta.eliminarLore(itemComparar);
-            UtilsItemMeta.mostrarItemSinUso(itemClick); //Por si el elemento viene del inventario no de un click.
 
             //Se serializa el Item.
             String targetSerialized = serializeItemStack(itemComparar);

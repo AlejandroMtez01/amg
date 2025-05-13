@@ -1,10 +1,7 @@
 package org.amg.Menu;
 
 import org.amg.AMGEPlugin;
-import org.amg.Utils.UtilsLimites;
-import org.amg.Utils.UtilsMetodos;
-import org.amg.Utils.UtilsMetodosEconomicos;
-import org.amg.Utils.UtilsPrecios;
+import org.amg.Utils.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -53,14 +50,14 @@ public class MenuMejorarEncantamientos implements Listener {
             if (!ENCANTAMIENTOS_VANILLA.contains(id)) continue;
 
             // ✅ Filtrar encantamientos nivel máximo o superior.
-            if (UtilsMetodos.obtenerMaximoNivelEncantamiento(enc.getKey().getKey()) > nivel) continue;
+            if (UtilsEncantamientos.obtenerMaximoNivelEncantamiento(enc.getKey().getKey()) > nivel) continue;
             int futuroNivel =(nivel+1);
             // ✅ Filtrar los que superen el límite.
 
             if (futuroNivel> UtilsLimites.LIMITE_ENCANTAMIENTO) continue;; //Límite de encantamientos nivel 10.
 
 
-            int nivelesDiferencia = (nivel+1)-UtilsMetodos.obtenerMaximoNivelEncantamiento(enc.getKey().getKey());
+            int nivelesDiferencia = (nivel+1)- UtilsEncantamientos.obtenerMaximoNivelEncantamiento(enc.getKey().getKey());
 
 
             ItemStack libro = new ItemStack(Material.ENCHANTED_BOOK);
@@ -68,7 +65,7 @@ public class MenuMejorarEncantamientos implements Listener {
 
             String nombre = obtenerNombreLegible(enc);
             //Se pinta el nombre con el siguiente nivel.
-            meta.setDisplayName("§e" + nombre + " " + UtilsMetodos.convertirNivel2Romano(futuroNivel));
+            meta.setDisplayName("§e" + nombre + " " + UtilsEncantamientos.convertirNivel2Romano(futuroNivel));
 
             List<String> lore = new ArrayList<>();
             lore.add("§7Nivel Actual: §f" + nivel);

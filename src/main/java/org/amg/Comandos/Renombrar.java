@@ -2,6 +2,7 @@ package org.amg.Comandos;
 
 import org.amg.AMGEPlugin;
 import org.amg.Otros.ItemManager;
+import org.amg.Utils.UtilsEncantamientos;
 import org.amg.Utils.UtilsMensajes;
 import org.amg.Utils.UtilsMetodos;
 import org.bukkit.ChatColor;
@@ -36,8 +37,8 @@ public class Renombrar implements CommandExecutor {
             jugador.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"¡Debes tener un item en la mano para poder renombrar el item!");
             return false;
         }
-        if (!UtilsMetodos.tieneEncantamientosTOP(itemMano)){
-            jugador.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"Para poder renombrar un item tiene que tener encantamientos ¡por encima de lo normal!");
+        if (!UtilsEncantamientos.tieneEncantamientosTOP(itemMano) && !UtilsEncantamientos.tieneEcantamientosEspeciales(itemMano)){
+            jugador.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"Para poder renombrar un item tiene que tener (encantamientos ¡por encima de lo normal!) o (encantamientos Especiales)");
             return false;
         }
         if (args.length==0){

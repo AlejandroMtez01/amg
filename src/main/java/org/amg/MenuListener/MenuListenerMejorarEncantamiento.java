@@ -53,7 +53,7 @@ public class MenuListenerMejorarEncantamiento implements Listener {
 
             //jugador.sendMessage("Línea 33: " + itemClick.getItemMeta().getDisplayName());
             String nombreEnc = itemClick.getItemMeta().getDisplayName().split(" ")[0].substring(2);
-            int nivelSiguiente = UtilsMetodos.convertirRomano2Nivel(itemClick.getItemMeta().getDisplayName().split(" ")[1]);
+            int nivelSiguiente = UtilsEncantamientos.convertirRomano2Nivel(itemClick.getItemMeta().getDisplayName().split(" ")[1]);
             //jugador.sendMessage("nombreEnc: " + nombreEnc);
             Enchantment enc =  obtenerEncantamientoPorNombre(nombreEnc);
             //jugador.sendMessage("enc: " + enc);
@@ -62,8 +62,8 @@ public class MenuListenerMejorarEncantamiento implements Listener {
 
 
             if (enc != null && itemMano.containsEnchantment(enc)) {
-                int puedeMejorarEncantamiento = UtilsMetodos.encantamientoMejorado(jugador.getInventory().getContents(), itemMano, enc,nivelSiguiente,jugador);
-                double precioOperacion = UtilsPrecios.calcularPrecioMejoraEncantamiento(nivelSiguiente-UtilsMetodos.obtenerMaximoNivelEncantamiento(enc.getKey().getKey()));
+                int puedeMejorarEncantamiento = UtilsEncantamientos.encantamientoMejorado(jugador.getInventory().getContents(), itemMano, enc,nivelSiguiente,jugador);
+                double precioOperacion = UtilsPrecios.calcularPrecioMejoraEncantamiento(nivelSiguiente-UtilsEncantamientos.obtenerMaximoNivelEncantamiento(enc.getKey().getKey()));
                 boolean tieneEconomiaSuficiente = AMGEPlugin.economia.has(jugador, precioOperacion);
 
                 if (puedeMejorarEncantamiento != -1) {
@@ -73,14 +73,16 @@ public class MenuListenerMejorarEncantamiento implements Listener {
 
                     }else{
                         ItemStack itemParaEliminar = itemMano.clone();
-                        UtilsMetodos.repararItem(itemMano,jugador);
+
                         UtilsMetodosEconomicos.retirarDinero(jugador,precioOperacion);
 
-                        UtilsMetodos.eliminarEncantamiento(puedeMejorarEncantamiento,enc,jugador);
+                        UtilsEncantamientos.eliminarEncantamiento(puedeMejorarEncantamiento,enc,jugador);
                         itemMano.addUnsafeEnchantment(enc, nivelSiguiente);
+                        UtilsMetodos.repararItem(itemMano,jugador);
 
                         jugador.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"§eMejora de encantamiento implementada!");
                         itemManager.renovarItem(jugador,itemParaEliminar,itemMano);
+                        itemManager.eliminarItemPorClick(jugador.getUniqueId(),itemParaEliminar,jugador);
                         //PENDIENTE DE VER PORQUE NO AÑADE EL ENCHNANT (UNSAFE)
 
                         //Cuando es el mismo elemento lo elimina.

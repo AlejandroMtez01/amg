@@ -1,6 +1,7 @@
 package org.amg.Menu;
 
 import org.amg.AMGEPlugin;
+import org.amg.Utils.UtilsEncantamientos;
 import org.amg.Utils.UtilsMetodos;
 import org.amg.Utils.UtilsPrecios;
 import org.bukkit.Bukkit;
@@ -53,7 +54,7 @@ public class MenuEliminarEncantamientos implements Listener {
             ItemMeta meta = libro.getItemMeta();
 
             String nombre = obtenerNombreLegible(enc);
-            meta.setDisplayName("§e" + nombre + " " + UtilsMetodos.convertirNivel2Romano(nivel));
+            meta.setDisplayName("§e" + nombre + " " + UtilsEncantamientos.convertirNivel2Romano(nivel));
 
 
 

@@ -3,6 +3,7 @@ package org.amg.Comandos;
 import org.amg.AMGEPlugin;
 import org.amg.Menu.MenuEliminarEncantamientos;
 import org.amg.Menu.MenuMejorarEncantamientos;
+import org.amg.Utils.UtilsEncantamientos;
 import org.amg.Utils.UtilsMensajes;
 import org.amg.Utils.UtilsMetodos;
 import org.bukkit.Material;
@@ -42,7 +43,7 @@ public class MejorarEncantamiento implements CommandExecutor {
             jugador.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"No se puede realizar esta acción con un libro encantado.");
             return false;
         }
-        if (! (UtilsMetodos.tieneEncantamientosTOP(item) || UtilsMetodos.tieneEncantamientosMaximosVanilla(item))){
+        if (! (UtilsEncantamientos.tieneEncantamientosTOP(item) || UtilsEncantamientos.tieneEncantamientosMaximosVanilla(item))){
             jugador.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"¡Este item no tiene encantamientos suficientemente elevados (Para poder mejorar un encantamiento debe estar como mínimo al nivel máximo).");
             return false;
         }
