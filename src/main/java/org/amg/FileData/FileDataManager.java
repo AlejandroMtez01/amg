@@ -56,28 +56,33 @@ public class FileDataManager {
 
     }
 
-    
+
     public boolean guardarItem(UUID jugadorUUID, String jugadorNombre, ItemStack item) {
         try {
-            //Se clona el Item (Para no modificar) el item del Jugador.
+            // Se clona y repara el Item (Tu lógica original, intacta)
             ItemStack itemCopia = item.clone();
-            UtilsItemMeta.mostrarItemSinUso(itemCopia); //Se repara porque los items mostrados en Menú Sagrado no deben tener desgaste.
+            UtilsItemMeta.mostrarItemSinUso(itemCopia);
             String serializedItem = serializeItemStack(itemCopia);
-            
-            List<Map<String, Object>> playerItems = new ArrayList<>();
-            if (dataConfig.contains(jugadorUUID.toString())) {
-                playerItems = (List<Map<String, Object>>) dataConfig.getList(jugadorUUID.toString());
-            }
-            
-            Map<String, Object> itemData = new HashMap<>();
-            itemData.put("nombre_jugador", jugadorNombre);
-            itemData.put("item_serializado", serializedItem);
-            itemData.put("fecha_guardado", System.currentTimeMillis());
-            
-            playerItems.add(itemData);
-            dataConfig.set(jugadorUUID.toString(), playerItems);
+
+            // --- CAMBIO PRINCIPAL ---
+            // En lugar de usar la UUID del jugador como clave (que obliga a usar listas),
+            // generamos una ID única para este item específico.
+            String uniqueItemID = UUID.randomUUID().toString();
+
+            // Guardamos los datos DIRECTAMENTE (Sin crear Maps ni Lists)
+            // Esto crea la estructura:
+            // ID_ITEM:
+            //   nombre_jugador: ...
+            //   item_serializado: ...
+            dataConfig.set(uniqueItemID + ".nombre_jugador", jugadorNombre);
+            dataConfig.set(uniqueItemID + ".uuid_propietario", jugadorUUID.toString()); // Guardo también la UUID por si acaso
+            dataConfig.set(uniqueItemID + ".item_serializado", serializedItem);
+            dataConfig.set(uniqueItemID + ".fecha_guardado", System.currentTimeMillis());
+
+            // Guardamos el archivo
             saveData();
             return true;
+
         } catch (Exception e) {
             plugin.getLogger().log(Level.SEVERE, "Error al guardar item", e);
             return false;
@@ -125,18 +130,42 @@ public class FileDataManager {
         }
         return items;
     }
-    
+
     public List<ItemStack> obtenerTodosLosItems() {
-        List<ItemStack> allItems = new ArrayList<>();
-        for (String key : dataConfig.getKeys(false)) {
-            try {
-                UUID uuid = UUID.fromString(key);
-                allItems.addAll(obtenerItems(uuid));
-            } catch (IllegalArgumentException e) {
-                // Ignorar claves que no sean UUID
+        List<ItemStack> items = new ArrayList<>();
+        // Accedemos a la config (asegúrate de tener el getter en FileDataManager)
+        org.bukkit.configuration.file.FileConfiguration config = dataConfig;
+
+        if (config == null) return items;
+
+        for (String key : config.getKeys(false)) {
+            // Lectura directa (Formato Nuevo)
+            String base64 = config.getString(key + ".item_serializado");
+
+            if (base64 != null) {
+                ItemStack item = deserializar(base64); // Tu método deserializar
+                if (item != null) {
+                    items.add(item);
+                }
             }
         }
-        return allItems;
+        return items;
+    }
+    private ItemStack deserializar(String base64) {
+        try {
+            // Decodifica el texto Base64 a bytes
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64.getDecoder().decode(base64));
+            // Convierte los bytes a un objeto de Bukkit (ItemStack)
+            BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
+
+            ItemStack item = (ItemStack) dataInput.readObject();
+
+            dataInput.close();
+            return item;
+        } catch (Exception e) {
+            // Si falla (texto corrupto), devuelve null para que lo controlemos arriba
+            return null;
+        }
     }
     public boolean eliminarItemIgnorandoLore(UUID jugadorUUID, ItemStack itemClick, Player jugador) {
         try {
@@ -193,42 +222,80 @@ public class FileDataManager {
             return false;
         }
     }
-    public Map<String, String> obtenerInfoJugadorPorItem(ItemStack item) {
-        try {
-            String targetSerialized = serializeItemStack(item);
-            
-            for (String key : dataConfig.getKeys(false)) {
-                List<Map<String, Object>> playerItems = (List<Map<String, Object>>) dataConfig.getList(key);
-                for (Map<String, Object> itemData : playerItems) {
-                    if (targetSerialized.equals(itemData.get("item_serializado"))) {
-                        Map<String, String> info = new HashMap<>();
-                        info.put("nombre_jugador", (String) itemData.get("nombre_jugador"));
-                        info.put("uuid_jugador", key);
-                        return info;
-                    }
+    public Map<String, String> obtenerInfoJugadorPorItem(ItemStack itemBuscado) {
+        if (dataConfig == null) return null;
+
+        // Recorremos todas las claves (IDs únicas)
+        for (String key : dataConfig.getKeys(false)) {
+            // Obtenemos el item serializado directamente
+            String base64 = dataConfig.getString(key + ".item_serializado");
+
+            if (base64 != null) {
+                // Deserializamos (Usa tu método deserializeItemStack)
+                ItemStack itemGuardado = deserializeItemStack(base64);
+
+                // Si el item coincide con el que buscamos
+                if (itemGuardado != null && itemGuardado.isSimilar(itemBuscado)) {
+                    String nombre = dataConfig.getString(key + ".nombre_jugador");
+
+                    Map<String, String> info = new HashMap<>();
+                    info.put("nombre", (nombre != null ? nombre : "Desconocido"));
+                    return info;
                 }
             }
-        } catch (Exception e) {
-            plugin.getLogger().log(Level.WARNING, "Error al buscar info de jugador", e);
         }
         return null;
     }
-    public Long obtenerFechaEnMSItem(ItemStack item) {
+    /**
+     * Convierte un String (Base64) de vuelta a un ItemStack.
+     */
+    public org.bukkit.inventory.ItemStack deserializeItemStack(String data) {
         try {
-            String targetSerialized = serializeItemStack(item);
+            // CORRECCIÓN: Usamos java.util.Base64 para decodificar
+            byte[] rawData = java.util.Base64.getDecoder().decode(data);
 
-            for (String key : dataConfig.getKeys(false)) {
-                List<Map<String, Object>> playerItems = (List<Map<String, Object>>) dataConfig.getList(key);
-                for (Map<String, Object> itemData : playerItems) {
-                    if (targetSerialized.equals(itemData.get("item_serializado"))) {
-                        return (long) itemData.get("fecha_guardado");
-                    }
+            java.io.ByteArrayInputStream inputStream = new java.io.ByteArrayInputStream(rawData);
+            org.bukkit.util.io.BukkitObjectInputStream dataInput = new org.bukkit.util.io.BukkitObjectInputStream(inputStream);
+
+            org.bukkit.inventory.ItemStack item = (org.bukkit.inventory.ItemStack) dataInput.readObject();
+
+            dataInput.close();
+            return item;
+        } catch (Exception e) {
+            org.bukkit.Bukkit.getLogger().severe("Error al deserializar item: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+    }
+    // -----------------------------------------------------------------------
+    // SUSTITUYE TU MÉTODO 'obtenerFechaEnMSItem' POR ESTE EN ItemManager.java
+    // -----------------------------------------------------------------------
+
+    public long obtenerFechaEnMSItem(org.bukkit.inventory.ItemStack itemBuscado) {
+        // 1. Obtener config
+        org.bukkit.configuration.file.FileConfiguration config = dataConfig; // O .getSagradosConfig(), según tu variable
+
+        if (config == null || itemBuscado == null) return 0L;
+
+        // 2. Recorrer IDs (Formato Nuevo Plano)
+        for (String key : config.getKeys(false)) {
+            // Leemos el item serializado
+            String base64 = config.getString(key + ".item_serializado");
+
+            if (base64 != null) {
+                // Usamos el deserializador del FileDataManager
+                org.bukkit.inventory.ItemStack itemGuardado = deserializeItemStack(base64);
+
+                // 3. Si es el item que buscamos, devolvemos su fecha
+                if (itemGuardado != null && itemGuardado.isSimilar(itemBuscado)) {
+                    // getLong devuelve 0 si no existe, así que nunca será null
+                    return config.getLong(key + ".fecha_guardado", 0L);
                 }
             }
-        } catch (Exception e) {
-            plugin.getLogger().log(Level.WARNING, "Error al buscar info de jugador", e);
         }
-        return null;
+
+        // Si no se encuentra, devolvemos 0 (nunca null)
+        return 0L;
     }
     
     private String serializeItemStack(ItemStack item) throws IOException {
@@ -239,11 +306,5 @@ public class FileDataManager {
         return Base64.getEncoder().encodeToString(outputStream.toByteArray());
     }
     
-    private ItemStack deserializeItemStack(String data) throws IOException, ClassNotFoundException {
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64.getDecoder().decode(data));
-        BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
-        ItemStack item = (ItemStack) dataInput.readObject();
-        dataInput.close();
-        return item;
-    }
+
 }
