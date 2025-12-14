@@ -6,6 +6,7 @@ import org.amg.FileData.FileDataManager;
 import org.amg.MenuListener.MenuListenerEliminarEncantamiento;
 import org.amg.MenuListener.MenuListenerItemSagrados;
 import org.amg.MenuListener.MenuListenerMejorarEncantamiento;
+import org.amg.MenuListener.MenuListenerMejorarEncantamientoMoney;
 import org.amg.Otros.ItemManager;
 import org.amg.Utils.UtilsMensajes;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -33,18 +34,23 @@ public class AMGEPlugin extends JavaPlugin {
         getCommand("eliminarEncantamiento").setExecutor(new EliminarEncantamiento(this));
         getCommand("mejorarEncantamiento").setExecutor(new MejorarEncantamiento(this));
         getCommand("renombrar").setExecutor(new Renombrar(this,itemManager));
-        getCommand("vender").setExecutor(new Vender(this));
+        //getCommand("vender").setExecutor(new Vender(this));
         //getCommand("guardaritemsagrado").setExecutor(new GuardarSagrados(this,itemManager));
         getCommand("sagrados").setExecutor(new Sagrados(this,itemManager));
+        getCommand("reload").setExecutor(new ComandoAdmin(itemManager));
+        //getCommand("fundir").setExecutor(new Fundir(this));
+
 
 
         //Gestión de eventos.
 
         getServer().getPluginManager().registerEvents(new MenuListenerEliminarEncantamiento(), this);
-        getServer().getPluginManager().registerEvents(new MenuListenerMejorarEncantamiento(this,itemManager), this);
+        getServer().getPluginManager().registerEvents(new MenuListenerMejorarEncantamientoMoney(this,itemManager), this);
         getServer().getPluginManager().registerEvents(new MenuListenerItemSagrados(this,itemManager), this);
 
     }
+
+
 
     @Override
     public void onDisable() {
@@ -59,5 +65,6 @@ public class AMGEPlugin extends JavaPlugin {
         return economia != null;
 
     }
+
 
 }

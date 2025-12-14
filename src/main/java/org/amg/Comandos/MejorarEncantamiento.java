@@ -3,6 +3,7 @@ package org.amg.Comandos;
 import org.amg.AMGEPlugin;
 import org.amg.Menu.MenuEliminarEncantamientos;
 import org.amg.Menu.MenuMejorarEncantamientos;
+import org.amg.Menu.MenuMejorarEncantamientosMoney;
 import org.amg.Utils.UtilsEncantamientos;
 import org.amg.Utils.UtilsMensajes;
 import org.amg.Utils.UtilsMetodos;
@@ -35,20 +36,23 @@ public class MejorarEncantamiento implements CommandExecutor {
             return false;
         }
 
-        if (!item.hasItemMeta() || !item.getItemMeta().hasEnchants()) {
-            jugador.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"¡Este item no tiene encantamientos!.");
+
+        if ( (!item.hasItemMeta() || !item.getItemMeta().hasEnchants()) && !item.getType().equals(Material.ENCHANTED_BOOK)) {
+            jugador.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"¡Este item no tiene encantamientos!");
             return false;
         }
-        if (item.getType().equals(Material.ENCHANTED_BOOK)) {
+        /*if (item.getType().equals(Material.ENCHANTED_BOOK)) {
             jugador.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"No se puede realizar esta acción con un libro encantado.");
             return false;
-        }
-        if (! (UtilsEncantamientos.tieneEncantamientosTOP(item) || UtilsEncantamientos.tieneEncantamientosMaximosVanilla(item))){
+        }*/
+        //if (! (UtilsEncantamientos.tieneEncantamientosTOP(item) || UtilsEncantamientos.tieneEncantamientosMaximosVanilla(item))){
+        if (!UtilsEncantamientos.tieneEncantamientosMaximosVanillaOSuperiores(item)){
             jugador.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"¡Este item no tiene encantamientos suficientemente elevados (Para poder mejorar un encantamiento debe estar como mínimo al nivel máximo).");
             return false;
         }
 
-        MenuMejorarEncantamientos.mostrarMenu(jugador, item);
+        //Aquí depende de si se hace por experiencia o por money.
+        MenuMejorarEncantamientosMoney.mostrarMenu(jugador, item);
         return true;
     }
 }

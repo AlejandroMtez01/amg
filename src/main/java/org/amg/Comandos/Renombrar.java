@@ -37,7 +37,7 @@ public class Renombrar implements CommandExecutor {
             jugador.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"¡Debes tener un item en la mano para poder renombrar el item!");
             return false;
         }
-        if (!UtilsEncantamientos.tieneEncantamientosTOP(itemMano) && !UtilsEncantamientos.tieneEcantamientosEspeciales(itemMano)){
+        if ((!UtilsEncantamientos.tieneEncantamientosTOP(itemMano) && !UtilsEncantamientos.tieneEcantamientosEspeciales(itemMano)) && !UtilsMetodos.esShulker(itemMano.getType())){
             jugador.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"Para poder renombrar un item tiene que tener (encantamientos ¡por encima de lo normal!) o (encantamientos Especiales)");
             return false;
         }
@@ -55,8 +55,11 @@ public class Renombrar implements CommandExecutor {
 
         jugador.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"¡Objeto renombrado correctamente!" +" ["+nuevoNombre+"§f]");
 
-        itemManager.renovarItem(jugador,itemViejo,itemMano);
+        if (!UtilsMetodos.esShulker(itemMano.getType())) {
 
+
+            itemManager.renovarItem(jugador, itemViejo, itemMano);
+        }
         return true;
 
     }

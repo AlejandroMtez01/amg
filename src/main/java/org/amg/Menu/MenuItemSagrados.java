@@ -34,6 +34,123 @@ public class MenuItemSagrados {
     }
 
     public void abrir(Player player, int pagina) {
+        List<ItemStack> todosLosItems = itemManager.obtenerTodosLosItems();
+
+        // --- FILTRADO DE ITEMS CORRUPTOS ---
+        List<ItemStack> itemsValidos = new ArrayList<>();
+
+        if (todosLosItems != null) {
+            for (ItemStack item : todosLosItems) {
+                // Verificamos si el item es nulo
+                if (item == null) continue;
+
+                // Intentamos obtener la info. Si da null o está vacío, asumimos que está corrupto.
+                Map<String, String> infoJugador = itemManager.obtenerInfoJugadorPorItem(item);
+
+                if (infoJugador == null || infoJugador.isEmpty()) {
+                    // OBTENER DATOS PARA EL REPORTE EN CONSOLA
+                    String tipoMaterial = item.getType().toString();
+                    String nombreItem = (item.hasItemMeta() && item.getItemMeta().hasDisplayName())
+                            ? item.getItemMeta().getDisplayName()
+                            : "Sin nombre";
+
+                    // MENSAJE DE ERROR EN CONSOLA
+                    Bukkit.getLogger().warning("========================================");
+                    Bukkit.getLogger().warning("[AMGE] ERROR: Se encontró un Item Sagrado corrupto.");
+                    Bukkit.getLogger().warning("[AMGE] Motivo: No se pudo leer la info del jugador (Null/Empty).");
+                    Bukkit.getLogger().warning("[AMGE] Item Tipo: " + tipoMaterial);
+                    Bukkit.getLogger().warning("[AMGE] Item Nombre: " + nombreItem);
+                    Bukkit.getLogger().warning("[AMGE] ACCIÓN: El item ha sido omitido del menú para evitar crash.");
+                    Bukkit.getLogger().warning("========================================");
+
+                    // Saltamos al siguiente item del ciclo (no lo agregamos a itemsValidos)
+                    continue;
+                }
+
+                // Si pasa las comprobaciones, es válido
+                itemsValidos.add(item);
+            }
+        }
+
+        // --- LÓGICA DE PAGINACIÓN (Usando itemsValidos) ---
+        int totalPaginas = (int) Math.ceil((double) itemsValidos.size() / ITEMS_PARA_MOSTRAR);
+
+        if (totalPaginas == 0) totalPaginas = 1;
+        if (pagina < 1) pagina = 1;
+        if (pagina > totalPaginas) pagina = totalPaginas;
+
+        Inventory inv = Bukkit.createInventory(null, 54,
+                ChatColor.translateAlternateColorCodes('&', "&6Items Especiales &7- Página " + pagina + "/" + totalPaginas));
+
+        int inicio = (pagina - 1) * ITEMS_PARA_MOSTRAR;
+        int fin = Math.min(inicio + ITEMS_PARA_MOSTRAR, itemsValidos.size());
+
+        ItemStack cristal = crearCristalEncantado();
+
+        for (int i = 0; i < ITEMS_POR_PAGINA; i++) {
+            if (i < 9 || i >= 45 || i % 9 == 0 || (i + 1) % 9 == 0) {
+                // Bordes y botones
+                if (pagina > 1 && i == 45) {
+                    ItemStack anterior = new ItemStack(Material.ARROW);
+                    ItemMeta metaAnterior = anterior.getItemMeta();
+                    metaAnterior.setDisplayName(ChatColor.YELLOW + "Página anterior");
+                    metaAnterior.setLore(Collections.singletonList(ChatColor.GRAY + "Página " + (pagina - 1)));
+                    anterior.setItemMeta(metaAnterior);
+                    inv.setItem(45, anterior);
+                } else if (pagina < totalPaginas && i == 53) {
+                    ItemStack siguiente = new ItemStack(Material.ARROW);
+                    ItemMeta metaSiguiente = siguiente.getItemMeta();
+                    metaSiguiente.setDisplayName(ChatColor.YELLOW + "Página siguiente");
+                    metaSiguiente.setLore(Collections.singletonList(ChatColor.GRAY + "Página " + (pagina + 1)));
+                    siguiente.setItemMeta(metaSiguiente);
+                    inv.setItem(53, siguiente);
+                } else if (i == 49) {
+                    ItemStack cerrar = new ItemStack(Material.BARRIER);
+                    ItemMeta metaCerrar = cerrar.getItemMeta();
+                    metaCerrar.setDisplayName(ChatColor.RED + "Cerrar menú");
+                    cerrar.setItemMeta(metaCerrar);
+                    inv.setItem(49, cerrar);
+                } else {
+                    inv.setItem(i, cristal);
+                }
+            } else {
+                // Items centrales
+                if (inicio < fin) {
+                    ItemStack item = itemsValidos.get(inicio);
+
+                    // Ya sabemos que esto NO es null gracias al filtro de arriba
+                    String nombreJugador = itemManager.obtenerInfoJugadorPorItem(item).values().iterator().next();
+
+                    long ms = itemManager.obtenerFechaEnMSItem(item);
+
+                    ItemMeta meta = item.getItemMeta();
+                    if (meta instanceof Damageable) {
+                        ((Damageable) meta).setDamage(0);
+                        item.setItemMeta(meta);
+                    }
+
+                    inicio++;
+
+                    ItemMeta itemMeta = item.getItemMeta();
+                    List<String> lista = new ArrayList<>();
+                    if (itemMeta.hasLore()) {
+                        lista.addAll(itemMeta.getLore());
+                    }
+                    lista.add("");
+                    lista.add("§fPropiedad de: §c" + nombreJugador);
+                    lista.add("");
+                    lista.add("§fFecha de Publicación: §a" + UtilsFechas.formatoFecha(ms));
+                    lista.add("");
+                    itemMeta.setLore(lista);
+                    item.setItemMeta(itemMeta);
+                    inv.setItem(i, item);
+                }
+            }
+        }
+        player.openInventory(inv);
+    }
+
+    public void abrirOLD(Player player, int pagina) { //Abrir Anterior
         List<ItemStack> items = itemManager.obtenerTodosLosItems();
         int totalPaginas = (int) Math.ceil((double) items.size() / ITEMS_PARA_MOSTRAR);
 
@@ -92,8 +209,19 @@ public class MenuItemSagrados {
 
 
                     ItemStack item = items.get(inicio);
-                    Iterator<String> iterator = itemManager.obtenerInfoJugadorPorItem(item).values().iterator();
-                    String nombreJugador = iterator.next();
+
+
+                    // 1. Guardamos el resultado en una variable primero
+                    var infoJugadorMap = itemManager.obtenerInfoJugadorPorItem(item);
+                    String nombreJugador = "§cDesconocido"; // Valor por defecto por si falla
+
+                    // 2. Verificamos que NO sea null y que NO esté vacío
+                    if (infoJugadorMap != null && !infoJugadorMap.isEmpty()) {
+                        nombreJugador = infoJugadorMap.values().iterator().next();
+                    } else {
+                        // Opcional: Imprimir en consola qué item falló para depurar
+                        Bukkit.getLogger().warning("[AMGE] Se encontró un item Sagrado sin dueño. Tipo: " + item.getType());
+                    }
 
                     long ms = itemManager.obtenerFechaEnMSItem(item);
 

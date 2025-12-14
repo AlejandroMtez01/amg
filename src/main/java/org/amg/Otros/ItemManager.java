@@ -5,6 +5,7 @@ import org.amg.FileData.FileDataManager;
 import org.amg.Menu.MenuItemSagrados;
 import org.amg.Utils.UtilsItemMeta;
 import org.amg.Utils.UtilsMensajes;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -33,6 +34,17 @@ public class ItemManager {
 
         }
         return (seHaGuardado);
+    }
+
+    public void recargarDatos() {
+        // 1. Si usas un archivo personalizado, recárgalo primero.
+        // Si usas config.yml por defecto: plugin.reloadConfig();
+        // Si usas una clase FileDataManager (como vi en tus imports), úsala:
+        fileDataManager.recargarArchivo();
+
+
+
+        Bukkit.getLogger().info("[AMGE] Los items sagrados han sido recargados desde el disco.");
     }
     public boolean guardarItem(Player player, ItemStack item) {
         if (item == null || item.getType().isAir()) {

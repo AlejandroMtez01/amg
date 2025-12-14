@@ -7,6 +7,7 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Map;
 import java.util.Set;
@@ -38,6 +39,13 @@ public class UtilsEncantamientos {
         }
         return false;
     }
+    public static boolean esEcantamientoEspecial(Enchantment ec) {
+
+            if(!ENCANTAMIENTOS_VANILLA.contains(ec.getKey().getKey())){ //Si no contiene un encantamiento vanilla.
+                return true;
+            }
+        return false;
+    }
     public static int obtenerMaximoNivelEncantamiento(String claveEncantamiento) {
         Enchantment enchant = Enchantment.getByKey(NamespacedKey.minecraft(claveEncantamiento));
         if (enchant != null) {
@@ -54,30 +62,98 @@ public class UtilsEncantamientos {
         }
         return false;
     }
-    public static boolean tieneEncantamientosMaximosVanilla(ItemStack it) {
+    public static boolean tieneEncantamientosMaximosVanillaOSuperiores(ItemStack it) {
         Map<Enchantment, Integer> encantamientos = it.getEnchantments();
         for (Enchantment enc : encantamientos.keySet()) {
-            if (obtenerMaximoNivelEncantamiento(enc.getKey().getKey()) == encantamientos.get(enc)) {
+            if (obtenerMaximoNivelEncantamiento(enc.getKey().getKey()) <=encantamientos.get(enc)) {
                 return true;
             }
 
         }
+
+        // Verificar si es un libro encantado
+        if (it.getType() == Material.ENCHANTED_BOOK) {
+            EnchantmentStorageMeta meta = (EnchantmentStorageMeta) it.getItemMeta();
+            if (meta != null) {
+                Map<Enchantment, Integer> encantamientosLibro = meta.getStoredEnchants();
+                for (Enchantment enc : encantamientosLibro.keySet()) {
+                    if (obtenerMaximoNivelEncantamiento(enc.getKey().getKey()) <= encantamientosLibro.get(enc)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
         return false;
     }
+    public static int getNivelEncantamiento(ItemStack item, Enchantment encantamiento) {
+        if (item == null || item.getType() == Material.AIR) {
+            return 0;
+        }
+
+        // Para libros encantados
+        if (item.getType() == Material.ENCHANTED_BOOK) {
+            EnchantmentStorageMeta meta = (EnchantmentStorageMeta) item.getItemMeta();
+            if (meta != null) {
+                return meta.getStoredEnchants().getOrDefault(encantamiento, 0);
+            }
+            return 0;
+        }
+
+        // Para items normales
+        Map<Enchantment, Integer> encantamientos = item.getEnchantments();
+        return encantamientos != null ? encantamientos.getOrDefault(encantamiento, 0) : 0;
+    }
+    public static boolean tieneEncantamiento(ItemStack item, Enchantment encantamiento) {
+        if (item == null || item.getType() == Material.AIR) {
+            return false;
+        }
+
+        // Para libros encantados
+        if (item.getType() == Material.ENCHANTED_BOOK) {
+            EnchantmentStorageMeta meta = (EnchantmentStorageMeta) item.getItemMeta();
+            if (meta != null) {
+                return meta.getStoredEnchants().containsKey(encantamiento);
+            }
+            return false;
+        }
+
+        // Para items normales
+        Map<Enchantment, Integer> encantamientos = item.getEnchantments();
+        return encantamientos != null && encantamientos.containsKey(encantamiento);
+    }
+    public static boolean tieneEncantamiento(ItemStack item) {
+        if (item == null || item.getType() == Material.AIR) {
+            return false;
+        }
+
+        // Para libros encantados
+        if (item.getType() == Material.ENCHANTED_BOOK) {
+            EnchantmentStorageMeta meta = (EnchantmentStorageMeta) item.getItemMeta();
+            return meta != null;
+        }
+
+        // Para items normales
+        Map<Enchantment, Integer> encantamientos = item.getEnchantments();
+        return encantamientos != null;
+    }
+
+
     public static int encantamientoMejorado(ItemStack[] huecosInventario, ItemStack itemMano, Enchantment encantamiento, int level, Player jugador) {
-        jugador.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"Recorriendo todos los items del inventario (v 1.5)");
+        //jugador.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"Recorriendo todos los items del inventario (v 1.6)");
         for (int i = 0; i < jugador.getInventory().getContents().length; i++) {
             ItemStack elemento = jugador.getInventory().getContents()[i];
 
 
-            if (itemMano == null || !itemMano.containsEnchantment(encantamiento) ||
-                    itemMano.getEnchantmentLevel(encantamiento) != level - 1) {
+            //if (itemMano == null || !itemMano.containsEnchantment(encantamiento) ||
+            if (itemMano == null || !UtilsEncantamientos.tieneEncantamiento(itemMano,encantamiento) ||
+                    getNivelEncantamiento(itemMano,encantamiento) != level - 1) {
                 return -1;
             }
             if (elemento == null || elemento.getType().isAir() || i == jugador.getInventory().getHeldItemSlot()) {
             } else {
 
-                if (elemento.containsEnchantment(encantamiento) && elemento.getEnchantmentLevel(encantamiento) == (level - 1)) {
+                if (UtilsEncantamientos.tieneEncantamiento(elemento,encantamiento) && getNivelEncantamiento(elemento,encantamiento) == (level - 1)) {
                     return i;
                 }
                 if (elemento.getType() == Material.ENCHANTED_BOOK && tieneEncantamientoLibro(elemento, encantamiento)) {
@@ -92,11 +168,17 @@ public class UtilsEncantamientos {
 
     }
     // Métodos auxiliares nuevos para manejar libros encantados
-    private static boolean tieneEncantamientoLibro(ItemStack item, Enchantment encantamiento) {
+    public static boolean tieneEncantamientoLibro(ItemStack item, Enchantment encantamiento) {
         if (item.getType() != Material.ENCHANTED_BOOK) return false;
 
         EnchantmentStorageMeta meta = (EnchantmentStorageMeta) item.getItemMeta();
         return meta != null && meta.hasStoredEnchant(encantamiento);
+    }
+    public static boolean tieneEncantamientoLibro(ItemStack item) {
+        if (item.getType() != Material.ENCHANTED_BOOK) return false;
+
+        EnchantmentStorageMeta meta = (EnchantmentStorageMeta) item.getItemMeta();
+        return meta != null;
     }
 
     private static int getNivelEncantamientoLibro(ItemStack item, Enchantment encantamiento) {
@@ -108,22 +190,53 @@ public class UtilsEncantamientos {
 
     public static void eliminarEncantamiento(int id,Enchantment encantamiento,Player jugador){
         ItemStack item = jugador.getInventory().getContents()[id];
-        //Si se trata de un libro
+//        //Si se trata de un libro
+//        if (item.getType() == Material.ENCHANTED_BOOK) {
+//            EnchantmentStorageMeta meta = (EnchantmentStorageMeta) item.getItemMeta();
+//            meta.removeStoredEnchant(encantamiento);
+//
+//
+//            // Cambiar a libro normal si no tiene encantamientos
+//            if (meta.getStoredEnchants().isEmpty()) {
+//                item.setType(Material.BOOK);
+//                item.setItemMeta(null); // Eliminar la meta completamente
+//            } else {
+//                item.setItemMeta(meta);
+//            }
+//        }else{
+//            jugador.getInventory().getContents()[id].removeEnchantment(encantamiento);
+//        }
+        removerEncantamiento(item,encantamiento);
+    }
+    public static ItemStack removerEncantamiento(ItemStack item, Enchantment encantamiento) {
+        if (item == null || item.getType() == Material.AIR) {
+            return item;
+        }
+
+        // Para libros encantados
         if (item.getType() == Material.ENCHANTED_BOOK) {
             EnchantmentStorageMeta meta = (EnchantmentStorageMeta) item.getItemMeta();
-            meta.removeStoredEnchant(encantamiento);
-
-
-            // Cambiar a libro normal si no tiene encantamientos
-            if (meta.getStoredEnchants().isEmpty()) {
-                item.setType(Material.BOOK);
-                item.setItemMeta(null); // Eliminar la meta completamente
-            } else {
+            if (meta != null && meta.hasStoredEnchant(encantamiento)) {
+                meta.removeStoredEnchant(encantamiento);
                 item.setItemMeta(meta);
+
+                // Convertir a libro normal si no quedan encantamientos
+                if (meta.getStoredEnchants().isEmpty()) {
+                    item.setType(Material.BOOK);
+                    item.setItemMeta(null); // Limpiar metadata
+                }
             }
-        }else{
-            jugador.getInventory().getContents()[id].removeEnchantment(encantamiento);
+            return item;
         }
+
+        // Para items normales
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null && meta.hasEnchant(encantamiento)) {
+            meta.removeEnchant(encantamiento);
+            item.setItemMeta(meta);
+        }
+
+        return item;
     }
     public static int convertirRomano2Nivel(String nivel) {
         switch (nivel) {

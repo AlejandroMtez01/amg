@@ -22,6 +22,12 @@ commands:
   sagrados:
     description: Muestra los elementos sagrados generados.
     usage: ""
+  fundir:
+    description: Funde los elementos.
+    usage: ""
+  reload:
+    description: Comandos de administración del plugin
+    usage: ""
   #guardaritemsagrado:
   #  description: Muestra los elementos sagrados generados.
   #  usage: ""

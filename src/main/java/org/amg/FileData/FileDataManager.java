@@ -45,6 +45,17 @@ public class FileDataManager {
             plugin.getLogger().log(Level.SEVERE, "No se pudo guardar el archivo de datos", e);
         }
     }
+    public void recargarArchivo() {
+        // 1. Guardamos el archivo si no existe (opcional, por seguridad)
+        if (dataFile == null) { // 'configFile' es la variable File
+            dataFile = new File(plugin.getDataFolder(), "items_especiales.yml");
+        }
+
+        this.dataConfig = org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(this.dataFile);
+
+
+    }
+
     
     public boolean guardarItem(UUID jugadorUUID, String jugadorNombre, ItemStack item) {
         try {
