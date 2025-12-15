@@ -28,6 +28,10 @@ commands:
   reload:
     description: Comandos de administración del plugin
     usage: ""
+  compartirInformacionItem:
+    description: Muestra el item que tienes en la mano a todos.
+    usage: ""
+    aliases: [citem,compartirItem]
   #guardaritemsagrado:
   #  description: Muestra los elementos sagrados generados.
   #  usage: ""

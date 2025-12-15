@@ -280,4 +280,103 @@ public class UtilsEncantamientos {
                 return String.valueOf(nivel);
         }
     }
+    public static String traducirEncantamiento(org.bukkit.enchantments.Enchantment ench) {
+        String key = ench.getKey().getKey();
+        switch (key) {
+            // ARMADURA
+            case "protection":
+                return "Protección";
+            case "fire_protection":
+                return "Protección contra el fuego";
+            case "feather_falling":
+                return "Caída de pluma";
+            case "blast_protection":
+                return "Protección contra explosiones";
+            case "projectile_protection":
+                return "Protección contra proyectiles";
+            case "respiration":
+                return "Respiración";
+            case "aqua_affinity":
+                return "Afinidad acuática";
+            case "thorns":
+                return "Espinas";
+            case "depth_strider":
+                return "Agilidad acuática";
+            case "frost_walker":
+                return "Paso helado";
+            case "binding_curse":
+                return "Maldición de ligamiento";
+            case "soul_speed":
+                return "Velocidad de alma";
+            case "swift_sneak":
+                return "Sigilo veloz";
+
+            // ARMAS (ESPADA/HACHA)
+            case "sharpness":
+                return "Filo";
+            case "smite":
+                return "Golpeo";
+            case "bane_of_arthropods":
+                return "Perdición de los artrópodos";
+            case "knockback":
+                return "Empuje";
+            case "fire_aspect":
+                return "Aspecto ígneo";
+            case "looting":
+                return "Botín";
+            case "sweeping":
+                return "Barrido";
+
+            // HERRAMIENTAS
+            case "efficiency":
+                return "Eficiencia";
+            case "silk_touch":
+                return "Toque de seda";
+            case "unbreaking":
+                return "Irrompibilidad";
+            case "fortune":
+                return "Fortuna";
+
+            // ARCO
+            case "power":
+                return "Poder";
+            case "punch":
+                return "Retroceso";
+            case "flame":
+                return "Fuego";
+            case "infinity":
+                return "Infinidad";
+
+            // TRIDENTE
+            case "loyalty":
+                return "Lealtad";
+            case "impaling":
+                return "Empalamiento";
+            case "riptide":
+                return "Propulsión acuática";
+            case "channeling":
+                return "Conductividad";
+
+            // BALLESTA
+            case "multishot":
+                return "Multidisparo";
+            case "quick_charge":
+                return "Carga rápida";
+            case "piercing":
+                return "Perforación";
+
+            // OTROS
+            case "mending":
+                return "Reparación";
+            case "vanishing_curse":
+                return "Maldición de desaparición";
+            case "luck_of_the_sea":
+                return "Suerte marina";
+            case "lure":
+                return "Atracción";
+
+            default:
+                return key; // Por si meten uno nuevo en el futuro
+        }
+    }
 }

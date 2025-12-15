@@ -3,6 +3,7 @@ package org.amg;
 import net.milkbowl.vault.economy.Economy;
 import org.amg.Comandos.*;
 import org.amg.FileData.FileDataManager;
+import org.amg.Listener.AntiDestroyListener;
 import org.amg.MenuListener.MenuListenerEliminarEncantamiento;
 import org.amg.MenuListener.MenuListenerItemSagrados;
 import org.amg.MenuListener.MenuListenerMejorarEncantamiento;
@@ -38,6 +39,7 @@ public class AMGEPlugin extends JavaPlugin {
         //getCommand("guardaritemsagrado").setExecutor(new GuardarSagrados(this,itemManager));
         getCommand("sagrados").setExecutor(new Sagrados(this,itemManager));
         getCommand("reload").setExecutor(new ComandoAdmin(itemManager));
+        getCommand("compartirInformacionItem").setExecutor(new compartirInformacionItem(this));
         //getCommand("fundir").setExecutor(new Fundir(this));
 
 
@@ -47,6 +49,7 @@ public class AMGEPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MenuListenerEliminarEncantamiento(), this);
         getServer().getPluginManager().registerEvents(new MenuListenerMejorarEncantamientoMoney(this,itemManager), this);
         getServer().getPluginManager().registerEvents(new MenuListenerItemSagrados(this,itemManager), this);
+        getServer().getPluginManager().registerEvents(new AntiDestroyListener(this),this);
 
     }
 

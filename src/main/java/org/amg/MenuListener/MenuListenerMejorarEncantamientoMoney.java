@@ -3,6 +3,7 @@ package org.amg.MenuListener;
 import org.amg.AMGEPlugin;
 import org.amg.Otros.ItemManager;
 import org.amg.Utils.*;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -91,6 +92,9 @@ public class MenuListenerMejorarEncantamientoMoney implements Listener {
                         jugador.sendMessage(UtilsMensajes.NOMBRE_INFORMAL + "§eMejora de encantamiento implementada!");
                         itemManager.renovarItem(jugador, itemParaEliminar, itemMano);
                         itemManager.eliminarItemPorClick(jugador.getUniqueId(), itemParaEliminar, jugador);
+                        //Bukkit.broadcastMessage(UtilsMensajes.NOMBRE_INFORMAL + "§eEl usuario "+"§a"+jugador.getName()+" §eacaba de mejorar un item por encima de los límites de Minecraft. Enhorabuena!");
+                        UtilsChat.broadcastMejora(jugador,itemMano,UtilsEncantamientos.traducirEncantamiento(enc),nivelSiguiente);
+
 
 
                     }

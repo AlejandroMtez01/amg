@@ -167,7 +167,78 @@ public class FileDataManager {
             return null;
         }
     }
+
     public boolean eliminarItemIgnorandoLore(UUID jugadorUUID, ItemStack itemClick, Player jugador) {
+        try {
+            if (dataConfig == null || itemClick == null) return false;
+
+            // 1. Preparamos el item "Objetivo" (El que has clickado)
+            // Creamos copia y quitamos el Lore para poder compararlo con el guardado
+            ItemStack itemComparar = itemClick.clone();
+            UtilsItemMeta.eliminarLore(itemComparar); // Tu utilidad para quitar lore
+
+            // Lo convertimos a String para comparar texto con texto
+            String targetSerialized = serializeItemStack(itemComparar);
+
+            // 2. Recorremos TODAS las claves (IDs únicas) del archivo nuevo
+            for (String key : dataConfig.getKeys(false)) {
+
+                // OPTIMIZACIÓN: Primero miramos si este item pertenece al jugador.
+                // Así no perdemos tiempo deserializando items de otros jugadores.
+                String ownerUUID = dataConfig.getString(key + ".uuid_propietario");
+
+                // Si no tiene UUID guardada, intentamos mirar por nombre (por compatibilidad)
+                if (ownerUUID == null) {
+                    String ownerName = dataConfig.getString(key + ".nombre_jugador");
+                    if (ownerName != null && !ownerName.equals(jugador.getName())) {
+                        continue; // No es de este jugador, pasamos al siguiente
+                    }
+                } else if (!ownerUUID.equals(jugadorUUID.toString())) {
+                    continue; // La UUID no coincide, pasamos al siguiente
+                }
+
+                // 3. Si el item es del jugador, leemos el contenido
+                String base64 = dataConfig.getString(key + ".item_serializado");
+
+                if (base64 != null) {
+                    try {
+                        // Deserializamos el item guardado
+                        ItemStack storedItem = deserializeItemStack(base64);
+
+                        if (storedItem != null) {
+                            // Aplicamos la misma limpieza (clone, sin uso, sin lore)
+                            ItemStack storedItemComparar = storedItem.clone();
+                            UtilsItemMeta.mostrarItemSinUso(storedItemComparar);
+                            UtilsItemMeta.eliminarLore(storedItemComparar);
+
+                            // 4. COMPARACIÓN FINAL
+                            if (serializeItemStack(storedItemComparar).equals(targetSerialized)) {
+                                // ¡ENCONTRADO!
+
+                                // Borramos la sección entera de esta ID (key)
+                                dataConfig.set(key, null);
+
+                                // Guardamos cambios
+                                saveData();
+                                return true; // Salimos indicando éxito
+                            }
+                        }
+                    } catch (Exception e) {
+                        // Si falla un item concreto, lo ignoramos y seguimos buscando
+                        plugin.getLogger().warning("Item corrupto ignorado durante eliminación: " + key);
+                    }
+                }
+            }
+
+            return false; // No se encontró coincidencia
+
+        } catch (Exception e) {
+            plugin.getLogger().log(Level.SEVERE, "Error al eliminar item ignorando lore", e);
+            return false;
+        }
+    }
+
+    public boolean eliminarItemIgnorandoLoreOld(UUID jugadorUUID, ItemStack itemClick, Player jugador) {
         try {
             if (!dataConfig.contains(jugadorUUID.toString())) {
                 return false;

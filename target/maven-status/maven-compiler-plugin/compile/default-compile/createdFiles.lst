@@ -9,6 +9,7 @@ org\amg\Menu\MenuItemSagrados.class
 org\amg\Utils\UtilsMensajes.class
 org\amg\MenuListener\MenuListenerItemSagrados.class
 org\amg\Utils\UtilsVender.class
+org\amg\Comandos\compartirInformacionItem.class
 org\amg\Menu\MenuMejorarEncantamientosMoney.class
 org\amg\Comandos\ComandoAdmin.class
 org\amg\FileData\FileDataManager.class
@@ -16,9 +17,11 @@ org\amg\Utils\UtilsMetodos.class
 org\amg\Utils\UtilsMetodosEconomicos.class
 org\amg\Otros\ItemManager.class
 org\amg\MenuListener\MenuListenerItemSagrados_old.class
+org\amg\Listener\AntiDestroyListener.class
 org\amg\AMGEPlugin.class
 org\amg\Utils\UtilsXP.class
 org\amg\Comandos\Sagrados.class
+org\amg\Utils\UtilsChat.class
 org\amg\MenuListener\MenuListenerMejorarEncantamientoMoney.class
 org\amg\Comandos\EliminarEncantamiento.class
 org\amg\Utils\UtilsItemMeta.class
