@@ -88,6 +88,81 @@ public class FileDataManager {
             return false;
         }
     }
+
+    /**
+     * Elimina un item que proviene de un menú/GUI.
+     * Compara el item guardado con el clickado IGNORANDO el Lore (descripción),
+     * ya que los menús suelen añadir texto extra.
+     */
+    public boolean eliminarItemClick(ItemStack itemClickado) {
+        if (itemClickado == null || dataConfig == null) return false;
+
+        plugin.getLogger().info("=== BUSCANDO ITEM POR CRITERIOS (TIPO, NOMBRE, ENCHANTS) ===");
+
+        try {
+            // 1. Datos del item que tienes en la mano/clickado
+            org.bukkit.Material tipoTarget = itemClickado.getType();
+            String nombreTarget = obtenerNombre(itemClickado);
+            Map<org.bukkit.enchantments.Enchantment, Integer> enchantsTarget = itemClickado.getEnchantments();
+
+            plugin.getLogger().info("BUSCANDO: [" + tipoTarget + "] Nombre: '" + nombreTarget + "' Enchants: " + enchantsTarget.size());
+
+            // 2. Recorremos el archivo
+            for (String key : dataConfig.getKeys(false)) {
+                String base64Archivo = dataConfig.getString(key + ".item_serializado");
+                if (base64Archivo == null) continue;
+
+                // Deserializamos
+                ItemStack itemGuardado = deserializeItemStack(base64Archivo);
+                if (itemGuardado == null) continue;
+
+                // --- COMPROBACIÓN 1: MATERIAL ---
+                if (itemGuardado.getType() != tipoTarget) {
+                    continue; // Ni siquiera es el mismo bloque/item
+                }
+
+                // --- COMPROBACIÓN 2: NOMBRE ---
+                String nombreGuardado = obtenerNombre(itemGuardado);
+                if (!nombreGuardado.equals(nombreTarget)) {
+                    // Si tienen nombres distintos, pasamos al siguiente
+                    // (Log opcional para debug)
+                    // plugin.getLogger().info(" > ID " + key + " descartada: Nombre no coincide (" + nombreGuardado + " vs " + nombreTarget + ")");
+                    continue;
+                }
+
+                // --- COMPROBACIÓN 3: ENCANTAMIENTOS ---
+                // equals() en los mapas compara que tengan los mismos encantamientos y los mismos niveles exactos
+                if (!itemGuardado.getEnchantments().equals(enchantsTarget)) {
+                    // plugin.getLogger().info(" > ID " + key + " descartada: Encantamientos no coinciden.");
+                    continue;
+                }
+
+                // SI LLEGAMOS AQUÍ, TODO COINCIDE
+                plugin.getLogger().info("¡ENCONTRADO! Eliminando ID: " + key);
+
+                dataConfig.set(key, null); // Borrar
+                saveData(); // Guardar cambios
+                return true; // Salimos con éxito
+            }
+
+            plugin.getLogger().warning("No se encontró ningún item que coincida con esos criterios.");
+            return false;
+
+        } catch (Exception e) {
+            plugin.getLogger().log(Level.SEVERE, "Error al eliminar por criterios", e);
+            return false;
+        }
+    }
+
+    /**
+     * Helper para obtener el nombre de forma segura y evitar NullPointerException
+     */
+    private String obtenerNombre(ItemStack item) {
+        if (item == null || !item.hasItemMeta() || !item.getItemMeta().hasDisplayName()) {
+            return ""; // Devolvemos cadena vacía si no tiene nombre
+        }
+        return item.getItemMeta().getDisplayName();
+    }
     
     public boolean actualizarItem(UUID jugadorUUID, ItemStack itemViejo, ItemStack itemNuevo) {
         try {

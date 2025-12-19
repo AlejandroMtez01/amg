@@ -6,6 +6,7 @@ import org.amg.Menu.MenuItemSagrados;
 import org.amg.Utils.UtilsItemMeta;
 import org.amg.Utils.UtilsMensajes;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -25,8 +26,9 @@ public class ItemManager {
     }
     public boolean renovarItem(Player player, ItemStack itemViejo, ItemStack itemNuevo){
         boolean seHaGuardado = false;
-        if (eliminarItemPorClick(player.getUniqueId(),itemViejo,player)){
-            player.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"Eliminando antiguo §6§lITEM SAGRADO");
+        //if (eliminarItemPorClick(player.getUniqueId(),itemViejo,player)){
+        if (eliminarItem(itemViejo)){
+        player.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"Eliminando antiguo §6§lITEM SAGRADO");
         }
         seHaGuardado = guardarItem(player,itemNuevo);
         if (seHaGuardado){
@@ -93,5 +95,8 @@ public class ItemManager {
     }
     public Long obtenerFechaEnMSItem(ItemStack item){
         return fileDataManager.obtenerFechaEnMSItem(item);
+    }
+    public boolean eliminarItem(ItemStack item){
+        return fileDataManager.eliminarItemClick(item);
     }
 }

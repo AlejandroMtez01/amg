@@ -59,6 +59,7 @@ public class Renombrar implements CommandExecutor {
 
 
             itemManager.renovarItem(jugador, itemViejo, itemMano);
+            itemManager.eliminarItemPorClick(jugador.getUniqueId(), itemViejo, jugador);
         }
         return true;
 

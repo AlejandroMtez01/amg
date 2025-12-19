@@ -32,6 +32,10 @@ commands:
     description: Muestra el item que tienes en la mano a todos.
     usage: ""
     aliases: [citem,compartirItem]
+  reparar:
+    description: Reparar el item.
+    usage: ""
+    aliases: [reparar,repair,fix,repara,reparacion]
   #guardaritemsagrado:
   #  description: Muestra los elementos sagrados generados.
   #  usage: ""

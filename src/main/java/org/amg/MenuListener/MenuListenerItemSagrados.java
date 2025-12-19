@@ -1,7 +1,9 @@
 package org.amg.MenuListener;
 
 import org.amg.AMGEPlugin;
+import org.amg.Menu.MenuItemSagrados;
 import org.amg.Otros.ItemManager;
+import org.amg.Utils.UtilsItemMeta;
 import org.amg.Utils.UtilsMensajes;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -13,10 +15,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class MenuListenerItemSagrados implements Listener {
     private final AMGEPlugin plugin;
@@ -44,6 +43,7 @@ public class MenuListenerItemSagrados implements Listener {
         event.setCancelled(true);
 
         ItemStack clicked = event.getCurrentItem();
+        clicked.getItemMeta().setLore(new ArrayList<>()); //Se elimina el Lore.
         if (clicked == null || clicked.getType() == Material.AIR) return;
 
         // Manejar clic en botones de paginación
@@ -63,13 +63,18 @@ public class MenuListenerItemSagrados implements Listener {
         }
         // Manejar clic en un item especial
         else {
+            List<String> lore = clicked.getItemMeta().getLore();
+            String nombrePropietario = lore.get(1).split(":")[1].substring(3);
+            plugin.getLogger().info("Nombre Propietario según Lore: "+nombrePropietario);
+            plugin.getLogger().info("Jugador: "+player.getName());
 
             //Control de Clicks
             if (event.isLeftClick()){
-                List<String> lore = clicked.getItemMeta().getLore();
-                String nombrePropietario = lore.get(1).split(":")[1];
+
 
                 if (player.hasPermission("amg.sagrados.give")){
+                    UtilsItemMeta.eliminarLore(clicked);
+
                     player.getInventory().addItem(clicked);
                     player.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"Obteniendo el §6ITEM SAGRADO§f.");
 
@@ -81,14 +86,16 @@ public class MenuListenerItemSagrados implements Listener {
 
 
             }else if (event.isRightClick()){
-                if (itemManager.eliminarItemPorClick(player.getUniqueId(),clicked,player)) {
+
+                if (player.hasPermission("amg.sagrados.remove") || nombrePropietario.equals(player.getName())) {
+                    itemManager.eliminarItem(clicked);
                     player.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"Eliminando item de los §6§lITEMS SAGRADOS§f.");
 
                 }else{
                     player.sendMessage(UtilsMensajes.NOMBRE_INFORMAL+"No puedes eliminar un §6§lITEM SAGRADO§f si no eres el propietario.");
                 }
 
-                player.closeInventory();
+
 
             }
         }

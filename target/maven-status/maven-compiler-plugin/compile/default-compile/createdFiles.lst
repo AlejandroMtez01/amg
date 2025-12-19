@@ -2,6 +2,7 @@ org\amg\Comandos\Renombrar.class
 org\amg\Utils\UtilsFechas.class
 org\amg\Menu\MenuMejorarEncantamientos.class
 org\amg\MenuListener\MenuListenerEliminarEncantamiento.class
+org\amg\Comandos\reparar.class
 org\amg\Comandos\MejorarEncantamiento.class
 org\amg\Utils\UtilsEncantamientos.class
 org\amg\Comandos\Fundir.class
@@ -16,7 +17,6 @@ org\amg\FileData\FileDataManager.class
 org\amg\Utils\UtilsMetodos.class
 org\amg\Utils\UtilsMetodosEconomicos.class
 org\amg\Otros\ItemManager.class
-org\amg\MenuListener\MenuListenerItemSagrados_old.class
 org\amg\Listener\AntiDestroyListener.class
 org\amg\AMGEPlugin.class
 org\amg\Utils\UtilsXP.class

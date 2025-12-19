@@ -40,6 +40,7 @@ public class AMGEPlugin extends JavaPlugin {
         getCommand("sagrados").setExecutor(new Sagrados(this,itemManager));
         getCommand("reload").setExecutor(new ComandoAdmin(itemManager));
         getCommand("compartirInformacionItem").setExecutor(new compartirInformacionItem(this));
+        getCommand("reparar").setExecutor(new reparar(this));
         //getCommand("fundir").setExecutor(new Fundir(this));
 
 

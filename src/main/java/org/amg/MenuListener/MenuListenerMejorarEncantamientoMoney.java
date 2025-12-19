@@ -37,7 +37,7 @@ public class MenuListenerMejorarEncantamientoMoney implements Listener {
         evento.setCancelled(true);
 
         if (evento.isLeftClick()) {
-            if (itemMano == null || itemMano.getType().isAir()) {
+            if (itemMano.getType().isAir()) {
                 jugador.sendMessage("¡Ya no tienes el item en la mano!");
                 jugador.closeInventory();
                 return;
@@ -91,8 +91,9 @@ public class MenuListenerMejorarEncantamientoMoney implements Listener {
 
                         jugador.sendMessage(UtilsMensajes.NOMBRE_INFORMAL + "§eMejora de encantamiento implementada!");
                         itemManager.renovarItem(jugador, itemParaEliminar, itemMano);
-                        itemManager.eliminarItemPorClick(jugador.getUniqueId(), itemParaEliminar, jugador);
-                        //Bukkit.broadcastMessage(UtilsMensajes.NOMBRE_INFORMAL + "§eEl usuario "+"§a"+jugador.getName()+" §eacaba de mejorar un item por encima de los límites de Minecraft. Enhorabuena!");
+                        //itemManager.eliminarItem(itemParaEliminar);
+
+                        //itemManager.eliminarItemPorClick(jugador.getUniqueId(), itemParaEliminar, jugador);
                         UtilsChat.broadcastMejora(jugador,itemMano,UtilsEncantamientos.traducirEncantamiento(enc),nivelSiguiente);
 
 

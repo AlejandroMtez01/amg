@@ -117,6 +117,56 @@ public class UtilsChat {
         // 6. Broadcast
         player.getServer().spigot().broadcast(message);
     }
+    public static void notificacionReparacion(Player player) {
+        ItemStack item = player.getInventory().getItemInMainHand();
+
+        if (item.getType() == Material.AIR) return;
+
+        // 1. Crear el constructor del texto Hover
+        ComponentBuilder hoverText = new ComponentBuilder();
+
+        // Nombre del item
+        String displayName = (item.hasItemMeta() && item.getItemMeta().hasDisplayName())
+                ? item.getItemMeta().getDisplayName()
+                : item.getType().name();
+
+        hoverText.append(displayName).color(ChatColor.DARK_AQUA);
+
+        // 2. Añadir Encantamientos manualmente al hover
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null && meta.hasEnchants()) {
+            hoverText.append("\n\n§9Encantamientos:").append("\n");
+
+            for (Map.Entry<Enchantment, Integer> entry : meta.getEnchants().entrySet()) {
+                // Nota: getKey() es moderno, para versiones viejas usa getName()
+                String enchName = UtilsEncantamientos.traducirEncantamiento(entry.getKey());
+                String level = UtilsEncantamientos.convertirNivel2Romano(entry.getValue());
+                hoverText.append(enchName + " " + level).color(ChatColor.GRAY).append("\n");
+            }
+        }
+
+        // 3. Añadir Lore manualmente
+        if (meta != null && meta.hasLore()) {
+            for (String line : meta.getLore()) {
+                hoverText.append(line).append("\n");
+            }
+        }
+
+        // 4. Crear el componente visual del chat [Item]
+        TextComponent itemComponent = new TextComponent(displayName);
+        itemComponent.setColor(ChatColor.GOLD);
+
+        // Asignar el evento Hover (SHOW_TEXT es más compatible que SHOW_ITEM si no tienes el JSON exacto)
+        itemComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hoverText.create()));
+
+        // 5. Crear el mensaje final
+        TextComponent message = new TextComponent(UtilsMensajes.NOMBRE_INFORMAL+"§a" +player.getName() + " §facaba de realizar una reparación a su item: ");
+        message.setColor(ChatColor.YELLOW);
+        message.addExtra(itemComponent);
+
+        // 6. Broadcast
+        player.getServer().spigot().broadcast(message);
+    }
 
 }
 
